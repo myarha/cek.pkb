@@ -435,7 +435,7 @@
         'mobil_roda_3': { swdkllj: 100000, label: 'Mobil Roda 3' }
     };
 
-    // --- INISIALISASI ELEMEN & VARIABEL ---
+    // --- INISIALISASI ELEMEN & VARIABEL (TIDAK BERUBAH) ---
     const categorySelect = document.getElementById('categorySelect');
     const kodingInput = document.getElementById('kodingInput');
     const vehicleTypeSelect = document.getElementById('vehicleTypeSelect');
@@ -479,8 +479,8 @@
         }
     }
 
-    // --- FUNGSI UNTUK MENGHITUNG DAN MEMPERBARUI REKAPITULASI ---
     function updateRecapData(dpPkb, swdkllj) {
+        // [Kode Perhitungan dan Update Rekapitulasi - TIDAK BERUBAH]
         if (dpPkb === 0 || isNaN(dpPkb)) {
             dpPkb = 0;
             swdkllj = 0;
@@ -531,8 +531,8 @@
         }
     }
     
-    // --- FUNGSI UNTUK MENGELOLA PERUBAHAN KATEGORI ---
     function handleCategoryChange() {
+        // [Kode handleCategoryChange - TIDAK BERUBAH]
         const categoryKey = categorySelect.value;
         const config = CATEGORY_CONFIGS[categoryKey];
 
@@ -587,41 +587,50 @@
                 return;
             }
 
-            // --- Pemrosesan dan Pembersihan Data dengan Inheritance ---
+            // --- Pemrosesan dan Pembersihan Data dengan Defensive Inheritance ---
             let lastValidMerk = null;
             let lastValidType = null;
             
             filteredData.forEach((item, index) => {
                 const newItem = {
+                    // Penamaan field disamakan dengan header yang mungkin berbeda
                     TAHUN_BUAT: item['TAHUN\nBUAT'] || item.TAHUN_BUAT, 
                     DP_PKB: item.DP_PKB || item['DP\nPKB'] || 0,
                     NJKB: item.NJKB || 0,
                     BOBOT: item.BOBOT || 0,
-                    KODING: searchKoding, // Tetapkan KODING
-                    MERK: item.MERK,
-                    TYPE: item.TYPE,
+                    KODING: searchKoding, // KODING selalu diisi berdasarkan nama file
+                    MERK: item.MERK, // Ambil nilai mentah
+                    TYPE: item.TYPE, // Ambil nilai mentah
                 };
 
-                // Logic pengisian data kosong (Inheritance)
+                // 1. MERK Inheritance:
+                // Cek apakah item saat ini memiliki MERK yang valid (tidak null/undefined/empty string setelah trim)
+                const currentMerkFromItem = (item.MERK && String(item.MERK).trim() !== '') ? String(item.MERK).trim() : null;
+
+                if (currentMerkFromItem) {
+                    lastValidMerk = currentMerkFromItem; // Simpan nilai baru yang valid
+                }
+                // Terapkan nilai MERK: Jika baris ini valid, gunakan nilai baru. Jika kosong, gunakan nilai valid terakhir.
+                newItem.MERK = lastValidMerk; 
+
+                // 2. TYPE Inheritance:
+                const currentTypeFromItem = (item.TYPE && String(item.TYPE).trim() !== '') ? String(item.TYPE).trim() : null;
+
+                if (currentTypeFromItem) {
+                    lastValidType = currentTypeFromItem; // Simpan nilai baru yang valid
+                }
+                // Terapkan nilai TYPE: Jika baris ini valid, gunakan nilai baru. Jika kosong, gunakan nilai valid terakhir.
+                newItem.TYPE = lastValidType; 
                 
-                // 1. MERK Inheritance: Jika MERK pada baris ini kosong, gunakan nilai valid terakhir. Jika tidak, simpan nilai baru sebagai nilai valid terakhir.
-                const currentMerk = newItem.MERK ? newItem.MERK.toString().trim() : '';
-                if (currentMerk !== '') {
-                    lastValidMerk = currentMerk;
-                }
-                newItem.MERK = lastValidMerk; // Terapkan nilai valid terakhir (atau nilai baru jika ada)
-
-                // 2. TYPE Inheritance: Logika yang sama diterapkan pada TYPE.
-                const currentType = newItem.TYPE ? newItem.TYPE.toString().trim() : '';
-                if (currentType !== '') {
-                    lastValidType = currentType;
-                }
-                newItem.TYPE = lastValidType; // Terapkan nilai valid terakhir (atau nilai baru jika ada)
-
-                // Membersihkan data header
+                // --- Membersihkan nilai header yang mungkin tersisa di baris data ---
                 if (typeof newItem.NJKB === 'string' && newItem.NJKB.toUpperCase().includes('NJKB')) { newItem.NJKB = 0; }
                 if (typeof newItem.DP_PKB === 'string' && newItem.DP_PKB.toUpperCase().includes('DP')) { newItem.DP_PKB = 0; }
                 if (typeof newItem.TAHUN_BUAT === 'string' && newItem.TAHUN_BUAT.toUpperCase().includes('TAHUN')) { newItem.TAHUN_BUAT = ''; }
+
+                // Jika MERK atau TYPE masih null setelah inheritance (misalnya, baris pertama pun kosong), set sebagai 'N/A'
+                if (newItem.MERK === null) { newItem.MERK = 'N/A'; }
+                if (newItem.TYPE === null) { newItem.TYPE = 'Tipe N/A'; }
+
 
                 filteredData[index] = newItem; 
             });
@@ -657,8 +666,8 @@
         }
     }
 
-    // --- FUNGSI UPDATE OUTPUT & SIMPAN DETAIL ---
     function updateOutput() {
+        // [Kode updateOutput - TIDAK BERUBAH]
         const selectedValue = vehicleTypeSelect.value;
         showDetailButton.disabled = true;
         showRecapButton.disabled = true;
@@ -708,8 +717,8 @@
     }
 
 
-    // --- FUNGSI MODAL DETAIL ---
     function showDetailModal() {
+        // [Kode showDetailModal - TIDAK BERUBAH]
         if (!selectedVehicleDetail) return;
 
         const detail = selectedVehicleDetail;
@@ -733,7 +742,6 @@
         detailModal.style.display = "block";
     }
     
-    // --- FUNGSI MODAL REKAPITULASI ---
     function showRecapModal() {
         if (!selectedVehicleDetail) return;
         recapModal.style.display = "block";
