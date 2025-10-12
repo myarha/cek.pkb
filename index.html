@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
-        /* Gaya CSS (Biarkan tetap sama) */
+        /* Gaya CSS (TIDAK BERUBAH) */
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #f4f4f4;
@@ -427,7 +427,6 @@
 <script>
     // --- KONFIGURASI KATEGORI ---
     const CATEGORY_CONFIGS = {
-        // Hapus properti 'file' karena kita memuat data per KODING
         'motor_r2': { swdkllj: 35000, label: 'Sepeda Motor Roda 2' },
         'mobil_penumpang': { swdkllj: 143000, label: 'Mobil Penumpang' },
         'mobil_barang': { swdkllj: 163000, label: 'Mobil Barang' },
@@ -565,27 +564,22 @@
         selectedVehicleDetail = null;
         updateRecapData(0, 0); 
 
-        // Aturan: Minimal 5 karakter KODING (sesuaikan jika perlu)
         if (searchKoding.length < 5) { 
             vehicleTypeSelect.innerHTML = '<option value="">Masukkan KODING lengkap...</option>';
             return;
         }
         
-        // Membangun URL ke file JSON kecil
         const dataUrl = `data/${searchKoding}.json`; 
 
         try {
-            // Fetch hanya file kecil yang spesifik
             const response = await fetch(dataUrl);
 
             if (!response.ok) {
-                // KODING tidak ditemukan (Error 404)
                 vehicleTypeSelect.innerHTML = '<option value="">KODING tidak ditemukan (File JSON tidak ada)</option>';
                 return;
             }
 
             const rawData = await response.json();
-            // Lewati header array [0]
             let filteredData = rawData.slice(1); 
             
             if (filteredData.length === 0) {
@@ -593,8 +587,7 @@
                 return;
             }
 
-            // --- Pemrosesan dan Pembersihan Data ---
-            let lastValidKoding = searchKoding; 
+            // --- Pemrosesan dan Pembersihan Data dengan Inheritance ---
             let lastValidMerk = null;
             let lastValidType = null;
             
@@ -604,23 +597,26 @@
                     DP_PKB: item.DP_PKB || item['DP\nPKB'] || 0,
                     NJKB: item.NJKB || 0,
                     BOBOT: item.BOBOT || 0,
-                    KODING: item.KODING,
+                    KODING: searchKoding, // Tetapkan KODING
                     MERK: item.MERK,
                     TYPE: item.TYPE,
                 };
+
+                // Logic pengisian data kosong (Inheritance)
                 
-                // Logic pengisian data kosong dari baris sebelumnya (hanya untuk kelompok data kecil ini)
-                newItem.KODING = lastValidKoding; // Tetapkan berdasarkan KODING yang dicari
-
-                if (newItem.MERK && newItem.MERK.toString().trim() !== '') {
-                    lastValidMerk = newItem.MERK.trim();
+                // 1. MERK Inheritance: Jika MERK pada baris ini kosong, gunakan nilai valid terakhir. Jika tidak, simpan nilai baru sebagai nilai valid terakhir.
+                const currentMerk = newItem.MERK ? newItem.MERK.toString().trim() : '';
+                if (currentMerk !== '') {
+                    lastValidMerk = currentMerk;
                 }
-                newItem.MERK = lastValidMerk;
+                newItem.MERK = lastValidMerk; // Terapkan nilai valid terakhir (atau nilai baru jika ada)
 
-                if (newItem.TYPE && newItem.TYPE.toString().trim() !== '') {
-                    lastValidType = newItem.TYPE.trim();
+                // 2. TYPE Inheritance: Logika yang sama diterapkan pada TYPE.
+                const currentType = newItem.TYPE ? newItem.TYPE.toString().trim() : '';
+                if (currentType !== '') {
+                    lastValidType = currentType;
                 }
-                newItem.TYPE = lastValidType;
+                newItem.TYPE = lastValidType; // Terapkan nilai valid terakhir (atau nilai baru jika ada)
 
                 // Membersihkan data header
                 if (typeof newItem.NJKB === 'string' && newItem.NJKB.toUpperCase().includes('NJKB')) { newItem.NJKB = 0; }
@@ -747,8 +743,7 @@
     populateCategoryDropdown();
     categorySelect.addEventListener('change', handleCategoryChange);
     
-    // KRITIS: Mengganti 'input' (setiap ketikan) menjadi 'change' (setelah input selesai)
-    // atau 'keyup'/'input' dengan debounce untuk responsif
+    // Dipicu saat input KODING diubah (misalnya, menekan Enter atau klik di luar kotak input)
     kodingInput.addEventListener('change', searchAndFetchData); 
     
     vehicleTypeSelect.addEventListener('change', updateOutput);
