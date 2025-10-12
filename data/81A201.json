@@ -1,0 +1,29 @@
+[
+{
+  "NO": 1,
+  "KODING": "81A201",
+  "MERK": "AJS SOLO",
+  "TYPE": "110  CC",
+  "TAHUN_BUAT": 2000,
+  "NJKB": 5300000,
+  "BOBOT": 1,
+  "DP_PKB": 5300000
+ },
+ {
+  "NO": 2,
+  "TAHUN_BUAT": 2006,
+  "NJKB": 8100000,
+  "BOBOT": 1,
+  "DP_PKB": 8100000
+ },
+ {
+  "NO": 3,
+  "KODING": "81A203",
+  "MERK": "AJS SOLO",
+  "TYPE": "350  CC",
+  "TAHUN_BUAT": 1980,
+  "NJKB": 2700000,
+  "BOBOT": 1,
+  "DP_PKB": 2700000
+ }
+]
